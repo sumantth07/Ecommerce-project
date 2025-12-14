@@ -1,0 +1,5 @@
+.carousel-item img {
+  height: 300px;      /* reduce height */
+  object-fit: cover;  /* maintain aspect ratio */
+  border-radius: 20px;
+}
