@@ -2,7 +2,7 @@ import { Routes, Route} from 'react-router-dom';
 import NavBar from './NavBar.jsx'
 import Products from './products.jsx';
 import Example from './HeroSection.jsx';
-import Cart from './cart.jsx';
+import Cart from './Cart.jsx';
  
  
 export default function App(){
