@@ -3,7 +3,7 @@ import { useCart } from './cartContext';
 import logoImage from './assets/logo.jpg';
 import cartImage from './assets/shopping-cart.png';
 
-import homeicon from './assets/homeicon.jpg';
+import homeicon from './assets/homeIcon.jpg';
 import './NavBar.css';
 
 function NavBar() {
