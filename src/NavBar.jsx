@@ -22,7 +22,7 @@ function NavBar() {
           style={{ cursor: 'pointer' }}
         >
           <img className="logo-pic" src={logoImage} alt="Store Logo" />
-          <h2>E-commerce store preview</h2>
+          <h2>E-commerce store </h2>
         </div>
 
         <div className="nav-buttons">
