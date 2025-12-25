@@ -116,7 +116,7 @@ export default function Cart() {
               onClick={handleCheckout} 
               className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium"
             >
-              Checkout
+              Checkout now! 
             </button>
 
             <button
