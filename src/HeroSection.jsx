@@ -7,14 +7,11 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 export default function HeroSection() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [hideHero, setHideHero] = useState(false)
   const navigate = useNavigate()
 
+  // ✅ Just navigate directly — Framer Motion handles the exit animation
   const handleGetStarted = () => {
-    setHideHero(true)
-    setTimeout(() => {
-      navigate('/homepage')
-    }, 700)
+    navigate('/homepage')
   }
 
   return (
@@ -22,16 +19,13 @@ export default function HeroSection() {
       <header className="absolute inset-x-0 top-0 z-50">
         <nav className="flex items-center justify-between p-6 lg:px-8">
           <div className="flex items-center gap-2">
-            
             <span className="text-sm font-bold text-slate-900 dark:text-white">sumantth kona</span>
           </div>
-
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
-              Welcome to Ecommerce
+              Welcome to Ecommerce !
             </span>
           </div>
-
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden text-slate-900 dark:text-white"
@@ -55,24 +49,15 @@ export default function HeroSection() {
         </Dialog>
       </header>
 
-      {/* HERO SECTION */}
-      <div
-        className={`
-          relative isolate px-6 pt-20 lg:px-8
-          bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900
-          transition-all duration-700 ease-in-out
-          ${hideHero ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"}
-        `}
-      >
+      {/* HERO — no more hideHero state or transition classes needed */}
+      <div className="relative isolate px-6 pt-20 lg:px-8 bg-gradient-to-b from-white to-slate-50 dark:from-slate-950 dark:to-slate-900">
         <div className="mx-auto max-w-2xl py-16 sm:py-20 lg:py-24 text-center">
-          {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-900/20 px-4 py-2 border border-emerald-200 dark:border-emerald-700/40">
             <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
               ✨ Now Open
             </span>
           </div>
 
-          {/* Heading */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 dark:text-white">
             Everything You Need,
             <br />
@@ -81,25 +66,19 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          {/* Subheading */}
           <p className="mt-4 text-base text-slate-600 dark:text-slate-300 sm:text-lg max-w-2xl mx-auto leading-relaxed">
             Discover top-quality products, unbeatable prices, and lightning-fast delivery.
             Shop the latest trends and essentials — all in one place.
           </p>
 
-          {/* CTA Buttons */}
           <div className="mt-8 flex items-center justify-center gap-4 flex-wrap">
             <button
               onClick={handleGetStarted}
-              className="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:from-emerald-700 hover:to-emerald-600 transition-all duration-200 shadow-lg hover:shadow-emerald-500/ cursor-pointer"
+              className="rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:from-emerald-700 hover:to-emerald-600 transition-all duration-200 shadow-lg cursor-pointer"
             >
               Shop Now
             </button>
-            
           </div>
-
-          {/* Stats */}
-          
         </div>
       </div>
     </div>
