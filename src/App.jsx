@@ -1,7 +1,8 @@
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from "./supabaseClient";
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CartProvider } from './cartContext';
 import NavBar from './NavBar.jsx'
 import Products from './products.jsx';
 import HeroSection from './HeroSection.jsx';
@@ -24,40 +25,42 @@ export default function App() {
   const location = useLocation();
   const [user, setUser] = useState(null);
 
-useEffect(() => {
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    setUser(session?.user ?? null);
-  });
-
-  const { data: listener } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
-    }
-  );
+    });
 
-  return () => listener.subscription.unsubscribe();
-}, []);
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+      }
+    );
+
+    return () => listener.subscription.unsubscribe();
+  }, []);
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route index element={
-          <PageWrapper><HeroSection /></PageWrapper>
-        } />
-        <Route path="/login" element={
-          <PageWrapper><Login /></PageWrapper>
-        } />
-        <Route path="/signup" element={
-          <PageWrapper><SignUp /></PageWrapper>
-        } />
-
-        <Route path="/homepage" element={
-          <PageWrapper><NavBar user={user} /><Products /></PageWrapper>
-        } />
-        <Route path="/cart" element={
-          <PageWrapper><NavBar user={user} /><Cart /></PageWrapper>
-        } />
-      </Routes>
-    </AnimatePresence>
+    // ✅ CartProvider now lives here with user passed in
+    <CartProvider user={user}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route index element={
+            <PageWrapper><HeroSection /></PageWrapper>
+          } />
+          <Route path="/login" element={
+            <PageWrapper><Login /></PageWrapper>
+          } />
+          <Route path="/signup" element={
+            <PageWrapper><SignUp /></PageWrapper>
+          } />
+          <Route path="/homepage" element={
+            <PageWrapper><NavBar user={user} /><Products /></PageWrapper>
+          } />
+          <Route path="/cart" element={
+            <PageWrapper><NavBar user={user} /><Cart /></PageWrapper>
+          } />
+        </Routes>
+      </AnimatePresence>
+    </CartProvider>
   )
 }
