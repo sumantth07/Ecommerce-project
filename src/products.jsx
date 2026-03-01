@@ -30,6 +30,8 @@ export default function Products() {
           .range(0, 500);
         if (error) throw error;
         setProducts(data);
+        console.log("data:", data)
+        console.log("error:", error) 
       } catch (error) {
         console.log(error);
       } finally {
