@@ -6,6 +6,7 @@ import { supabase } from "./supabaseClient";
 import logoImage from "./assets/logo.jpg";
 import cartImage from "./assets/shopping-cart.png";
 import homeicon from "./assets/homeIcon.jpg";
+import ordersIcon from "./assets/orders.jpg"
 
 function NavBar({ user }) {
   const { cartItems } = useCart();
@@ -244,6 +245,10 @@ function NavBar({ user }) {
             <button className="nav-pill" onClick={() => navigate("/homepage")}>
               <img src={homeicon} alt="Home" className="nav-pill-icon" />
               <span className="nav-pill-label">Home</span>
+            </button>
+                        <button className="nav-pill" onClick={() => navigate("/orders")}>
+              <img src={ordersIcon} alt="Home" className="nav-pill-icon" />
+              <span className="nav-pill-label">Orders</span>
             </button>
 
             {/* Cart */}

@@ -20,7 +20,6 @@ export const CartProvider = ({ children, user }) => {
       .eq('user_id', user.id);
 
     if (!error && data) {
-      // Flatten product fields + quantity into one object
       const items = data.map((row) => ({
         ...row.products,
         quantity: row.quantity,
@@ -45,7 +44,7 @@ export const CartProvider = ({ children, user }) => {
     const existing = cartItems.find((item) => item.id === product.id);
     const newQuantity = existing ? existing.quantity + 1 : 1;
 
-    // Optimistic UI update
+    // Optimistic update
     if (existing) {
       setCartItems((prev) =>
         prev.map((item) =>
@@ -56,37 +55,21 @@ export const CartProvider = ({ children, user }) => {
       setCartItems((prev) => [...prev, { ...product, quantity: 1 }]);
     }
 
-    // Save to Supabase
     const { error } = await supabase.from('cart').upsert(
-      {
-        user_id: user.id,
-        product_id: product.id,
-        quantity: newQuantity,
-      },
+      { user_id: user.id, product_id: product.id, quantity: newQuantity },
       { onConflict: 'user_id,product_id' }
     );
 
-    if (error) {
-      console.error('Error adding to cart:', error);
-      fetchCart(); // re-sync if failed
-    }
+    if (error) { console.error('Error adding to cart:', error); fetchCart(); }
   };
 
   // ── Remove from cart ──
   const removeFromCart = async (productId) => {
     if (!user) return;
     setCartItems((prev) => prev.filter((item) => item.id !== productId));
-
-    const { error } = await supabase
-      .from('cart')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('product_id', productId);
-
-    if (error) {
-      console.error('Error removing from cart:', error);
-      fetchCart();
-    }
+    const { error } = await supabase.from('cart').delete()
+      .eq('user_id', user.id).eq('product_id', productId);
+    if (error) { console.error('Error removing:', error); fetchCart(); }
   };
 
   // ── Decrease quantity ──
@@ -95,50 +78,60 @@ export const CartProvider = ({ children, user }) => {
     const existing = cartItems.find((item) => item.id === productId);
     if (!existing) return;
 
-    if (existing.quantity <= 1) {
-      await removeFromCart(productId);
-      return;
-    }
+    if (existing.quantity <= 1) { await removeFromCart(productId); return; }
 
     const newQuantity = existing.quantity - 1;
-
-    // Optimistic UI update
     setCartItems((prev) =>
       prev.map((item) =>
         item.id === productId ? { ...item, quantity: newQuantity } : item
       )
     );
-
-    const { error } = await supabase
-      .from('cart')
-      .update({ quantity: newQuantity })
-      .eq('user_id', user.id)
-      .eq('product_id', productId);
-
-    if (error) {
-      console.error('Error decreasing quantity:', error);
-      fetchCart();
-    }
+    const { error } = await supabase.from('cart').update({ quantity: newQuantity })
+      .eq('user_id', user.id).eq('product_id', productId);
+    if (error) { console.error('Error decreasing:', error); fetchCart(); }
   };
 
-  // ── Clear entire cart ──
+  // ── Clear cart ──
   const clearCart = async () => {
     if (!user) return;
     setCartItems([]);
     await supabase.from('cart').delete().eq('user_id', user.id);
   };
 
+  // ── Place order ── saves cart to orders table then clears cart
+  const placeOrder = async () => {
+    if (!user || cartItems.length === 0) return;
+
+    const { error } = await supabase.from('orders').insert({
+      user_id: user.id,
+      items: cartItems,         // save full cart snapshot as JSON
+      total_price: totalPrice,
+      status: 'pending',
+    });
+
+    if (!error) {
+      await clearCart();        // empty cart after successful order
+    } else {
+      console.error('Error placing order:', error);
+    }
+
+    return error;               // return error so Cart.jsx can handle it
+  };
+
   // ── Total price ──
   const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
+    (total, item) => total + item.price * item.quantity, 0
   );
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, decreaseQuantity, clearCart, totalPrice, loading }}>
+    <CartContext.Provider value={{
+      cartItems, addToCart, removeFromCart,
+      decreaseQuantity, clearCart, placeOrder,
+      totalPrice, loading,
+    }}>
       {children}
 
-      {/* ── Login Popup ── */}
+      {/* Login Popup */}
       {showLoginPopup && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
@@ -148,9 +141,7 @@ export const CartProvider = ({ children, user }) => {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">Login to add items</h3>
-            <p className="text-sm text-gray-500 mb-6">
-              You need to be logged in to add products to your cart.
-            </p>
+            <p className="text-sm text-gray-500 mb-6">You need to be logged in to add products to your cart.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLoginPopup(false)}
@@ -159,10 +150,7 @@ export const CartProvider = ({ children, user }) => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setShowLoginPopup(false);
-                  navigate('/login');
-                }}
+                onClick={() => { setShowLoginPopup(false); navigate('/login'); }}
                 className="flex-1 py-2.5 rounded-xl bg-gray-900 text-white text-sm font-semibold hover:bg-gray-700 transition-colors"
               >
                 Login
