@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from "./supabaseClient";
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence,motion } from 'framer-motion';
 import { CartProvider } from './cartContext';
 import NavBar from './NavBar.jsx'
 import Products from './products.jsx';
 import HeroSection from './HeroSection.jsx';
 import Cart from './Cart.jsx';
+import Orders from './Orders.jsx';
 import Login from './loginPage.jsx';
 import SignUp from './signupPage.jsx';
 
@@ -40,7 +41,6 @@ export default function App() {
   }, []);
 
   return (
-    // ✅ CartProvider now lives here with user passed in
     <CartProvider user={user}>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -58,6 +58,10 @@ export default function App() {
           } />
           <Route path="/cart" element={
             <PageWrapper><NavBar user={user} /><Cart /></PageWrapper>
+          } />
+          
+          <Route path="/orders" element={
+            <PageWrapper><NavBar user={user} /><Orders user={user} /></PageWrapper>
           } />
         </Routes>
       </AnimatePresence>
