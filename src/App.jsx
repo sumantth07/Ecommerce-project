@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from "./supabaseClient";
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { AnimatePresence,motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { CartProvider } from './cartContext';
 import NavBar from './NavBar.jsx'
 import Products from './products.jsx';
@@ -10,6 +10,7 @@ import Cart from './Cart.jsx';
 import Orders from './Orders.jsx';
 import Login from './loginPage.jsx';
 import SignUp from './signupPage.jsx';
+import ProductDetail from './ProductDetail.jsx';
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -59,9 +60,12 @@ export default function App() {
           <Route path="/cart" element={
             <PageWrapper><NavBar user={user} /><Cart /></PageWrapper>
           } />
-          
           <Route path="/orders" element={
             <PageWrapper><NavBar user={user} /><Orders user={user} /></PageWrapper>
+          } />
+          {/* ✅ New product detail route */}
+          <Route path="/product/:id" element={
+            <PageWrapper><NavBar user={user} /><ProductDetail /></PageWrapper>
           } />
         </Routes>
       </AnimatePresence>
