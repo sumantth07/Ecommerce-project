@@ -11,6 +11,8 @@ import Orders from './Orders.jsx';
 import Login from './loginPage.jsx';
 import SignUp from './signupPage.jsx';
 import ProductDetail from './ProductDetail.jsx';
+import Profile from './Profile.jsx';
+import WishList from './WishList.jsx'
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -31,13 +33,9 @@ export default function App() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
-
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setUser(session?.user ?? null);
-      }
+      (_event, session) => { setUser(session?.user ?? null); }
     );
-
     return () => listener.subscription.unsubscribe();
   }, []);
 
@@ -45,15 +43,9 @@ export default function App() {
     <CartProvider user={user}>
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
-          <Route index element={
-            <PageWrapper><HeroSection /></PageWrapper>
-          } />
-          <Route path="/login" element={
-            <PageWrapper><Login /></PageWrapper>
-          } />
-          <Route path="/signup" element={
-            <PageWrapper><SignUp /></PageWrapper>
-          } />
+          <Route index element={<PageWrapper><HeroSection /></PageWrapper>} />
+          <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
+          <Route path="/signup" element={<PageWrapper><SignUp /></PageWrapper>} />
           <Route path="/homepage" element={
             <PageWrapper><NavBar user={user} /><Products /></PageWrapper>
           } />
@@ -63,9 +55,14 @@ export default function App() {
           <Route path="/orders" element={
             <PageWrapper><NavBar user={user} /><Orders user={user} /></PageWrapper>
           } />
-          {/* ✅ New product detail route */}
           <Route path="/product/:id" element={
             <PageWrapper><NavBar user={user} /><ProductDetail /></PageWrapper>
+          } />
+          <Route path="/profile" element={
+            <PageWrapper><NavBar user={user} /><Profile user={user} /></PageWrapper>
+          } />
+          <Route path="/wishlist" element={
+            <PageWrapper><NavBar user={user} /><WishList /></PageWrapper>
           } />
         </Routes>
       </AnimatePresence>
