@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from "./supabaseClient";
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CartProvider } from './cartContext';
 import NavBar from './NavBar.jsx'
@@ -13,6 +13,8 @@ import SignUp from './signupPage.jsx';
 import ProductDetail from './ProductDetail.jsx';
 import Profile from './Profile.jsx';
 import WishList from './WishList.jsx'
+import ForgotPassword from './ForgotPassword.jsx'
+import ResetPassword from './ResetPassword.jsx'
 
 const PageWrapper = ({ children }) => (
   <motion.div
@@ -27,17 +29,34 @@ const PageWrapper = ({ children }) => (
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [recoverySession, setRecoverySession] = useState(null); // ✅ store recovery session
 
   useEffect(() => {
+    // Check URL hash on first load
+    const hash = window.location.hash;
+    if (hash && hash.includes("type=recovery")) {
+      navigate("/reset-password");
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
+
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => { setUser(session?.user ?? null); }
+      (_event, session) => {
+        setUser(session?.user ?? null);
+
+        if (_event === "PASSWORD_RECOVERY") {
+          setRecoverySession(session); // ✅ save the session
+          navigate("/reset-password");
+        }
+      }
     );
+
     return () => listener.subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   return (
     <CartProvider user={user}>
@@ -46,6 +65,11 @@ export default function App() {
           <Route index element={<PageWrapper><HeroSection /></PageWrapper>} />
           <Route path="/login" element={<PageWrapper><Login /></PageWrapper>} />
           <Route path="/signup" element={<PageWrapper><SignUp /></PageWrapper>} />
+          <Route path="/forgot-password" element={<PageWrapper><ForgotPassword /></PageWrapper>} />
+          {/* ✅ Pass recoverySession to ResetPassword */}
+          <Route path="/reset-password" element={
+            <PageWrapper><ResetPassword recoverySession={recoverySession} /></PageWrapper>
+          } />
           <Route path="/homepage" element={
             <PageWrapper><NavBar user={user} /><Products /></PageWrapper>
           } />
